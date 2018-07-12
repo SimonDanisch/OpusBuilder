@@ -1,0 +1,40 @@
+language: julia
+os:
+  - linux
+julia:
+  - 0.6
+notifications:
+  email: false
+git:
+  depth: 99999999
+cache:
+  timeout: 1000
+  directories:
+    - downloads
+env:
+  global:
+    - BINARYBUILDER_DOWNLOADS_CACHE=downloads
+    - BINARYBUILDER_AUTOMATIC_APPLE=false
+sudo: required
+
+# Before anything else, get the latest versions of things
+before_script:
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryProvider.jl")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaPackaging/BinaryBuilder.jl"); Pkg.build()'
+
+script:
+  - julia build_tarballs.jl
+
+
+deploy:
+    provider: releases
+    api_key:
+        # Note; this api_key is only valid for SimonDanisch/OpusBuilder; you need
+        # to make your own: https://docs.travis-ci.com/user/deployment/releases/
+        secure: fFAHtdgSrbWhPlQE/EsRVhhcIEbPuvcSdXevKwB2wEMlZwJNz2IepX/wrwn7IdEDpDjqxkytb8lgQluoSkaE6KfW76XUNfM6SEjiyFKkVDAShX02XkFwf3/NRUhanBPudzCtMU3VlmbOuvaHgc2ri+tlgm5cSqpKn3kMIz7ehI93//1VlUz17urCdqOv9VW6XwgiKegT41KaEtQANRBFkRAoSWOOj/pufmdfGv2jkTyu1JhPQrxJDITKmO5YzFAyOwN/0vOisknabrjRBqR5AR6XkFkNRJunIvjY7dKJD/tXihiJa2ujIQ4V4X+eq8f0Ii2UY1zr4tuiACbj6vVUjtrH1L7yUNUPfeNvp9QH67+35ohvu6N6sxAQrFyrQIVznNJGzFHEOWLMDC+zhcrp1x2uaY6hEMWGrn9FiWRIomSFZnKQEvVdck7pUSI6gVWIenJNBUO2lIxP0Q5y2agxGs+3KiSc/k5ffhZeQpJXc7nTfDhrqEWL35z0czVjeLpqKD7ktElPvsgKb3e8ed+0wP0ruGQbgTLyZ7svrp0+Kt2DX1jmGwVxDM3JA0tFhcjDd4Kh4JmdsT2KZd2MLPkkTw1uWBfbRDBmS5LWHg0H/1Jg6CNchDQYyvmO0rx4L3EBmHSx6w0ok7MBTqj80xfYLv1hLwfTf+njJsOqnaWSWQw=
+    file_glob: true
+    file: products/*
+    skip_cleanup: true
+    on:
+        repo: SimonDanisch/OpusBuilder
+        tags: true
